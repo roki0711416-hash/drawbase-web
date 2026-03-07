@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct DRAW_BASEApp: App {
+    @State private var authManager = AuthManager()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(authManager)
         }
     }
 }

@@ -16,7 +16,7 @@ export function errorResponse(message: string, status = 400) {
 export async function getAuthUser() {
   const session = await getServerSession(authOptions);
   if (!session?.user) return null;
-  return session.user as { id: string; email: string; name: string };
+  return session.user as { id: string; email: string; name: string; role: string | null; isAdmin: boolean };
 }
 
 /** ページネーション用ヘルパー */

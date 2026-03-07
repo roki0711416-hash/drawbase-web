@@ -95,6 +95,8 @@ declare module "next-auth" {
       email: string;
       name: string;
       image?: string;
+      role: "CREATOR" | "FAN" | "BOTH" | null;
+      isAdmin: boolean;
     };
   }
 }

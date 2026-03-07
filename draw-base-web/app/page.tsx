@@ -24,6 +24,7 @@ export default function HomePage() {
       <section className="relative rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-accent-600 text-white p-8 sm:p-12 mb-10 overflow-hidden">
         <div className="relative z-10 max-w-2xl">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+            <span className="block text-white/90 text-lg sm:text-xl font-semibold tracking-wide mb-1">DRAW BASE</span>
             クリエイターの
             <br />
             すべてが、ここに。

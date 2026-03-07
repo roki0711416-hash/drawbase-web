@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiFetch } from "@/lib/apiClient";
@@ -41,20 +40,8 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto login after register
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("登録は完了しましたが、自動ログインに失敗しました。ログインページからお試しください。");
-        setLoading(false);
-      } else {
-        router.push("/");
-        router.refresh();
-      }
+      // メール認証が必要 → 確認ページへリダイレクト
+      router.push(`/auth/register-success?email=${encodeURIComponent(email)}`);
     } catch {
       setError("ネットワークエラーが発生しました");
       setLoading(false);

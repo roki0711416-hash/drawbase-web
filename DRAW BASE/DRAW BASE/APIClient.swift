@@ -46,6 +46,7 @@ actor APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        applyAuthHeader(&request)
 
         return try await perform(request)
     }
@@ -61,8 +62,34 @@ actor APIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.httpBody = try JSONEncoder().encode(body)
+        applyAuthHeader(&request)
 
         return try await perform(request)
+    }
+
+    /// Perform a PATCH request with JSON body.
+    func patch<T: Decodable>(
+        _ path: String,
+        body: some Encodable
+    ) async throws -> T {
+        let url = APIConfig.url(for: path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = try JSONEncoder().encode(body)
+        applyAuthHeader(&request)
+
+        return try await perform(request)
+    }
+
+    // MARK: - Auth
+
+    /// Attach Bearer token from Keychain if available.
+    private func applyAuthHeader(_ request: inout URLRequest) {
+        if let token = KeychainHelper.getToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
     }
 
     // MARK: - Private

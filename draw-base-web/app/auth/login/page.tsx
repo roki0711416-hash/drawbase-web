@@ -49,6 +49,33 @@ export default function LoginPage() {
           {error && (
             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
+              {error.includes("認証されていません") && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!email) return;
+                    setError("");
+                    try {
+                      const res = await fetch("/api/auth/resend-verification", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email }),
+                      });
+                      if (res.ok) {
+                        setError("認証メールを再送信しました。受信トレイをご確認ください。");
+                      } else {
+                        const data = await res.json();
+                        setError(data.error || "再送信に失敗しました");
+                      }
+                    } catch {
+                      setError("ネットワークエラーが発生しました");
+                    }
+                  }}
+                  className="block mt-2 underline text-blue-600 hover:text-blue-800 text-xs"
+                >
+                  認証メールを再送信する
+                </button>
+              )}
             </div>
           )}
 

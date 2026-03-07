@@ -8,11 +8,20 @@ datasource db {
 }
 
 // ============================================================
-// User — クリエイター / 購入者 / 依頼者
+// UserRole — ユーザー種別
+// ============================================================
+enum UserRole {
+  CREATOR
+  FAN
+  BOTH
+}
+
+// ============================================================
+// User — クリエイター / ファン
 // ============================================================
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String    @id @default(cuid())
+  email          String    @unique
   emailVerified  DateTime?
   passwordHash   String?
   name           String
@@ -22,7 +31,10 @@ model User {
   headerUrl      String?
   website        String?
   twitterHandle  String?
-  isCreator      Boolean  @default(false)
+  role           UserRole? // null = 未選択（オンボーディング未完了）
+  isCreator      Boolean   @default(false) // 移行期間後に削除予定
+  isAdmin        Boolean   @default(false)
+  isBanned       Boolean   @default(false)
   stripeAccountId String?
   stripeCustomerId String?
   createdAt      DateTime @default(now())
@@ -294,4 +306,20 @@ enum NotificationType {
   COMMISSION_UPDATE
   PURCHASE
   SYSTEM
+}
+
+// ============================================================
+// EmailVerificationToken — メール認証用トークン
+// ============================================================
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@map("email_verification_tokens")
 }
