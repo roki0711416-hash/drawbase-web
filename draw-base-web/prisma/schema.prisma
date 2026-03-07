@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// User — クリエイター / 購入者 / 依頼者
+// ============================================================
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  name           String
+  displayName    String?
+  bio            String?
+  avatarUrl      String?
+  headerUrl      String?
+  website        String?
+  twitterHandle  String?
+  isCreator      Boolean  @default(false)
+  stripeAccountId String?
+  stripeCustomerId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  posts            Post[]
+  communityPosts   CommunityPost[]
+  comments         Comment[]
+  products         Product[]
+  commissionMenus  CommissionMenu[]
+  commissionOrdersAsClient   CommissionOrder[] @relation("ClientOrders")
+  commissionOrdersAsCreator  CommissionOrder[] @relation("CreatorOrders")
+  followers        Follow[]       @relation("Following")
+  following        Follow[]       @relation("Followers")
+  likes            Like[]
+  purchases        Purchase[]
+  notifications    Notification[] @relation("NotificationReceiver")
+  sentNotifications Notification[] @relation("NotificationSender")
+
+  @@map("users")
+}
+
+// ============================================================
+// Post — 作品投稿（イラスト・マンガなど）
+// ============================================================
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrls   String[]       // 複数画像対応
+  tags        String[]
+  isNsfw      Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  viewCount   Int      @default(0)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  likes    Like[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+// ============================================================
+// CommunityPost — コミュニティ投稿（テキスト中心）
+// ============================================================
+model CommunityPost {
+  id        String   @id @default(cuid())
+  content   String
+  imageUrls String[]
+  tags      String[]
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  likes    Like[]
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("community_posts")
+}
+
+// ============================================================
+// Comment
+// ============================================================
+model Comment {
+  id              String   @id @default(cuid())
+  content         String
+  authorId        String
+  postId          String?
+  communityPostId String?
+  parentId        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post          Post?          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  communityPost CommunityPost? @relation(fields: [communityPostId], references: [id], onDelete: Cascade)
+  parent        Comment?       @relation("CommentReplies", fields: [parentId], references: [id])
+  replies       Comment[]      @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([communityPostId])
+  @@map("comments")
+}
+
+// ============================================================
+// Product — デジタルコンテンツ販売
+// ============================================================
+model Product {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  price        Int               // 最小通貨単位 (JPY なら円)
+  currency     String   @default("JPY")
+  thumbnailUrl String?
+  fileUrls     String[]          // ダウンロード対象ファイル
+  tags         String[]
+  isPublished  Boolean  @default(true)
+  salesCount   Int      @default(0)
+  sellerId     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  purchases Purchase[]
+
+  @@index([sellerId])
+  @@index([createdAt])
+  @@map("products")
+}
+
+// ============================================================
+// Purchase — 購入履歴
+// ============================================================
+model Purchase {
+  id              String   @id @default(cuid())
+  buyerId         String
+  productId       String
+  price           Int
+  currency        String   @default("JPY")
+  stripePaymentId String?
+  createdAt       DateTime @default(now())
+
+  buyer   User    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([buyerId, productId])
+  @@index([buyerId])
+  @@index([productId])
+  @@map("purchases")
+}
+
+// ============================================================
+// CommissionMenu — クリエイターが提示するコミッションメニュー
+// ============================================================
+model CommissionMenu {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  price        Int
+  currency     String   @default("JPY")
+  deliveryDays Int      @default(14)
+  thumbnailUrl String?
+  isOpen       Boolean  @default(true)
+  maxSlots     Int      @default(3)
+  currentSlots Int      @default(0)
+  creatorId    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  creator User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  orders  CommissionOrder[]
+
+  @@index([creatorId])
+  @@map("commission_menus")
+}
+
+// ============================================================
+// CommissionOrder — コミッション依頼
+// ============================================================
+model CommissionOrder {
+  id               String   @id @default(cuid())
+  menuId           String
+  clientId         String
+  creatorId        String
+  description      String          // 依頼内容
+  referenceUrls    String[]
+  price            Int
+  currency         String   @default("JPY")
+  status           CommissionStatus @default(PENDING)
+  stripePaymentId  String?
+  deliveryUrl      String?         // 納品ファイル
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  menu    CommissionMenu @relation(fields: [menuId], references: [id])
+  client  User           @relation("ClientOrders", fields: [clientId], references: [id])
+  creator User           @relation("CreatorOrders", fields: [creatorId], references: [id])
+
+  @@index([clientId])
+  @@index([creatorId])
+  @@index([status])
+  @@map("commission_orders")
+}
+
+enum CommissionStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+// ============================================================
+// Follow
+// ============================================================
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// ============================================================
+// Like — ポリモーフィックいいね
+// ============================================================
+model Like {
+  id              String   @id @default(cuid())
+  userId          String
+  postId          String?
+  communityPostId String?
+  createdAt       DateTime @default(now())
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post          Post?          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  communityPost CommunityPost? @relation(fields: [communityPostId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, communityPostId])
+  @@index([postId])
+  @@index([communityPostId])
+  @@map("likes")
+}
+
+// ============================================================
+// Notification
+// ============================================================
+model Notification {
+  id         String           @id @default(cuid())
+  type       NotificationType
+  message    String
+  isRead     Boolean          @default(false)
+  receiverId String
+  senderId   String?
+  linkUrl    String?
+  createdAt  DateTime         @default(now())
+
+  receiver User  @relation("NotificationReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender   User? @relation("NotificationSender", fields: [senderId], references: [id])
+
+  @@index([receiverId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  COMMISSION_REQUEST
+  COMMISSION_UPDATE
+  PURCHASE
+  SYSTEM
+}
