@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/commissions/[id]
 export async function GET(
   req: NextRequest,

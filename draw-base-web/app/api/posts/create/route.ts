@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { createPostSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getAuthUser();

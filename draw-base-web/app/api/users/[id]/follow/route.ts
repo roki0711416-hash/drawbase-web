@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/users/[id]/follow — toggle follow
 export async function POST(
   req: NextRequest,

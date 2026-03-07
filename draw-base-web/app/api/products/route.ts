@@ -8,6 +8,8 @@ import {
 } from "@/lib/api";
 import { createProductSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/products — create a product
 export async function POST(req: NextRequest) {
   try {

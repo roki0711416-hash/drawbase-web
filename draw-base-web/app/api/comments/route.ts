@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { commentSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/comments — create a comment
 export async function POST(req: NextRequest) {
   try {

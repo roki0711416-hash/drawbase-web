@@ -8,6 +8,8 @@ import {
 } from "@/lib/api";
 import { createCommissionOrderSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/commissions/request — create a commission order
 export async function POST(req: NextRequest) {
   try {

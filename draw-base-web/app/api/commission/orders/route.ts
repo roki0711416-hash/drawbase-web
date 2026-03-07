@@ -7,6 +7,8 @@ import {
   getPagination,
 } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/commission/orders — 自分のコミッション注文一覧
 export async function GET(req: NextRequest) {
   try {

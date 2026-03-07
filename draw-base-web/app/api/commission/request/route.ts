@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { createCommissionOrderSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/commission/request — コミッション依頼を送信
 export async function POST(req: NextRequest) {
   try {

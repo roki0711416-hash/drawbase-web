@@ -7,6 +7,8 @@ import {
   getPagination,
 } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/notifications
 export async function GET(req: NextRequest) {
   try {

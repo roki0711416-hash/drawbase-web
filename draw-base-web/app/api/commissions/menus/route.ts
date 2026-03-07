@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { createCommissionMenuSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/commissions/menus — create a commission menu
 export async function POST(req: NextRequest) {
   try {

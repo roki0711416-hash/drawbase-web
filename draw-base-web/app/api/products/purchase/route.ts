@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { createCheckoutSession } from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/products/purchase — 商品を購入
 export async function POST(req: NextRequest) {
   try {

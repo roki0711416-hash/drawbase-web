@@ -1,9 +1,19 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-  typescript: true,
-});
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY is not set.");
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-10-16",
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
 
 /**
  * 商品購入用の Checkout Session を作成
@@ -25,7 +35,7 @@ export async function createCheckoutSession({
   cancelUrl: string;
   metadata?: Record<string, string>;
 }) {
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: [
       {
@@ -50,7 +60,7 @@ export async function createCheckoutSession({
  * Connect アカウントを作成（クリエイター向け）
  */
 export async function createConnectAccount(email: string) {
-  const account = await stripe.accounts.create({
+  const account = await getStripe().accounts.create({
     type: "express",
     email,
     capabilities: {
@@ -65,7 +75,7 @@ export async function createConnectAccount(email: string) {
  * Connect ダッシュボードのリンクを生成
  */
 export async function createAccountLink(accountId: string) {
-  const link = await stripe.accountLinks.create({
+  const link = await getStripe().accountLinks.create({
     account: accountId,
     refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/payments`,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/payments`,

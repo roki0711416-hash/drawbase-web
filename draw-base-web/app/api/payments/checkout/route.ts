@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { successResponse, errorResponse, getAuthUser } from "@/lib/api";
 import { createCheckoutSession } from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/payments/checkout — create Stripe checkout for product purchase
 export async function POST(req: NextRequest) {
   try {

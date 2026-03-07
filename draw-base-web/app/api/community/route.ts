@@ -8,6 +8,8 @@ import {
 } from "@/lib/api";
 import { createCommunityPostSchema } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // POST — create community post
 export async function POST(req: NextRequest) {
   try {
