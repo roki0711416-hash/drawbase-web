@@ -10,9 +10,60 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      {/* ── 未ログイン時: クリエイター / ファン 分割バー ── */}
+      {!session?.user && (
+        <div className="border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 divide-x divide-gray-200">
+              {/* クリエイター側 */}
+              <div className="flex items-center justify-between py-2 pr-4">
+                <span className="text-xs font-bold text-primary-700 tracking-wide">
+                  🎨 クリエイター
+                </span>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/auth/register?role=creator"
+                    className="text-xs text-primary-600 hover:text-primary-800 font-medium hover:underline"
+                  >
+                    新規登録
+                  </Link>
+                  <Link
+                    href="/auth/login?role=creator"
+                    className="text-xs bg-primary-600 text-white px-3 py-1 rounded font-medium hover:bg-primary-700 transition-colors"
+                  >
+                    ログイン
+                  </Link>
+                </div>
+              </div>
+              {/* ファン側 */}
+              <div className="flex items-center justify-between py-2 pl-4">
+                <span className="text-xs font-bold text-accent-700 tracking-wide">
+                  ⭐ ファン
+                </span>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/auth/register?role=fan"
+                    className="text-xs text-accent-600 hover:text-accent-800 font-medium hover:underline"
+                  >
+                    新規登録
+                  </Link>
+                  <Link
+                    href="/auth/login?role=fan"
+                    className="text-xs bg-accent-600 text-white px-3 py-1 rounded font-medium hover:bg-accent-700 transition-colors"
+                  >
+                    ログイン
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── メインヘッダー ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -137,20 +188,8 @@ export default function Header() {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/auth/login"
-                  className="text-gray-600 hover:text-primary-600 transition-colors text-sm font-medium"
-                >
-                  ログイン
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
-                >
-                  新規登録
-                </Link>
-              </div>
+              /* 未ログイン時はヘッダーバーにログインUIがあるのでここは空 */
+              <div className="hidden md:block" />
             )}
 
             {/* Mobile hamburger */}
@@ -230,6 +269,42 @@ export default function Header() {
               >
                 + 新規投稿
               </Link>
+            )}
+            {!session?.user && (
+              <div className="border-t border-gray-200 mt-2 pt-3 space-y-2">
+                <div className="grid grid-cols-2 gap-2 px-3">
+                  <Link
+                    href="/auth/login?role=creator"
+                    className="block text-center bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    🎨 クリエイター ログイン
+                  </Link>
+                  <Link
+                    href="/auth/login?role=fan"
+                    className="block text-center bg-accent-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-accent-700"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    ⭐ ファン ログイン
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-2 px-3">
+                  <Link
+                    href="/auth/register?role=creator"
+                    className="block text-center border border-primary-300 text-primary-700 py-2 rounded-lg text-sm font-medium hover:bg-primary-50"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    クリエイター 登録
+                  </Link>
+                  <Link
+                    href="/auth/register?role=fan"
+                    className="block text-center border border-accent-300 text-accent-700 py-2 rounded-lg text-sm font-medium hover:bg-accent-50"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    ファン 登録
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         )}
