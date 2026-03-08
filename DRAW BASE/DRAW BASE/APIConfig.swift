@@ -3,12 +3,14 @@ import Foundation
 /// DRAW BASE API Configuration
 ///
 /// Manages API base URL for connecting to the DRAW BASE backend.
-/// - Production: https://api.drawbase.net
+/// - Production: https://www.drawbase.net
 /// - Development: http://localhost:3000
-enum APIConfig {
+///
+/// `Sendable` conformance allows safe usage from any actor context.
+enum APIConfig: Sendable {
 
     /// Current environment
-    enum Environment {
+    enum Environment: Sendable {
         case development
         case production
     }
@@ -25,14 +27,14 @@ enum APIConfig {
         case .development:
             return URL(string: "http://localhost:3000")!
         case .production:
-            return URL(string: "https://api.drawbase.net")!
+            return URL(string: "https://www.drawbase.net")!
         }
     }
 
     /// Construct a full API endpoint URL
     /// - Parameter path: API path (e.g., "/api/posts/feed")
     /// - Returns: Full URL
-    static func url(for path: String) -> URL {
+    nonisolated static func url(for path: String) -> URL {
         baseURL.appendingPathComponent(path)
     }
 }

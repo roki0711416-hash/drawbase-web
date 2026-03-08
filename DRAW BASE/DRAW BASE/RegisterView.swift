@@ -78,11 +78,13 @@ struct RegisterView: View {
             Button {
                 dismiss()
             } label: {
-                Text("すでにアカウントをお持ちの方は")
-                    .foregroundStyle(.secondary) +
-                Text("ログイン")
-                    .foregroundStyle(.blue)
-                    .bold()
+                HStack(spacing: 0) {
+                    Text("すでにアカウントをお持ちの方は")
+                        .foregroundStyle(.secondary)
+                    Text("ログイン")
+                        .foregroundStyle(.blue)
+                        .bold()
+                }
             }
             .font(.subheadline)
             .padding(.bottom, 32)

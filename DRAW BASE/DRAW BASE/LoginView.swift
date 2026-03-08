@@ -87,11 +87,13 @@ struct LoginView: View {
                 Button {
                     showRegister = true
                 } label: {
-                    Text("アカウントをお持ちでない方は")
-                        .foregroundStyle(.secondary) +
-                    Text("新規登録")
-                        .foregroundStyle(.blue)
-                        .bold()
+                    HStack(spacing: 0) {
+                        Text("アカウントをお持ちでない方は")
+                            .foregroundStyle(.secondary)
+                        Text("新規登録")
+                            .foregroundStyle(.blue)
+                            .bold()
+                    }
                 }
                 .font(.subheadline)
                 .padding(.bottom, 32)
@@ -213,9 +215,6 @@ private struct LoginFormSection: View {
 }
 
 #Preview {
-    LoginView()
-        .environment(AuthManager())
-}#Preview {
     LoginView()
         .environment(AuthManager())
 }

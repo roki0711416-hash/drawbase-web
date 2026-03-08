@@ -9,7 +9,7 @@ import Foundation
 /// ```swift
 /// let response: APIResponse<[Post]> = try await APIClient.shared.get("/api/posts/feed")
 /// ```
-actor APIClient {
+final class APIClient: @unchecked Sendable {
 
     static let shared = APIClient()
 

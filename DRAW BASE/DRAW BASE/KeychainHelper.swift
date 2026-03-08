@@ -4,7 +4,7 @@ import Security
 /// Keychain Helper for securely storing authentication tokens.
 ///
 /// Uses iOS Keychain Services to persist JWT tokens across app launches.
-enum KeychainHelper {
+enum KeychainHelper: Sendable {
 
     private static let service = "net.drawbase.app"
     private static let tokenKey = "auth_token"
