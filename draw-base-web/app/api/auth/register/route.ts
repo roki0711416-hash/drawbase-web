@@ -66,8 +66,11 @@ export async function POST(req: NextRequest) {
       },
       201
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Register error:", error);
-    return errorResponse("サーバーエラーが発生しました", 500);
+    return errorResponse(
+      `サーバーエラー: ${error?.message || "unknown"}`,
+      500
+    );
   }
 }
