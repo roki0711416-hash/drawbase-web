@@ -67,6 +67,22 @@ final class APIClient: @unchecked Sendable {
         return try await perform(request)
     }
 
+    /// Perform a PUT request with JSON body.
+    func put<T: Decodable>(
+        _ path: String,
+        body: some Encodable
+    ) async throws -> T {
+        let url = APIConfig.url(for: path)
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = try JSONEncoder().encode(body)
+        applyAuthHeader(&request)
+
+        return try await perform(request)
+    }
+
     /// Perform a PATCH request with JSON body.
     func patch<T: Decodable>(
         _ path: String,
@@ -78,6 +94,29 @@ final class APIClient: @unchecked Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.httpBody = try JSONEncoder().encode(body)
+        applyAuthHeader(&request)
+
+        return try await perform(request)
+    }
+
+    /// Perform a DELETE request.
+    func delete<T: Decodable>(
+        _ path: String,
+        queryItems: [URLQueryItem]? = nil
+    ) async throws -> T {
+        var components = URLComponents(
+            url: APIConfig.url(for: path),
+            resolvingAgainstBaseURL: true
+        )!
+        components.queryItems = queryItems
+
+        guard let url = components.url else {
+            throw APIError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
         applyAuthHeader(&request)
 
         return try await perform(request)

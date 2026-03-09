@@ -162,6 +162,19 @@ export default function Header() {
                   </button>
                   {menuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                      {(session.user as { role?: string }).role === "CREATOR" ||
+                       (session.user as { role?: string }).role === "BOTH" ? (
+                        <>
+                          <Link
+                            href="/creator/dashboard"
+                            className="block px-4 py-2 text-sm text-primary-600 font-medium hover:bg-primary-50"
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            🎨 クリエイター管理
+                          </Link>
+                          <hr className="my-1" />
+                        </>
+                      ) : null}
                       <Link
                         href={`/users/${(session.user as { id: string }).id}`}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"

@@ -31,6 +31,10 @@ model User {
   headerUrl      String?
   website        String?
   twitterHandle  String?
+  instagramHandle String?
+  pixivUrl       String?
+  genres         String[]
+  commissionOpen Boolean  @default(false)
   role           UserRole? // null = 未選択（オンボーディング未完了）
   isCreator      Boolean   @default(false) // 移行期間後に削除予定
   isAdmin        Boolean   @default(false)
@@ -189,6 +193,7 @@ model CommissionMenu {
   isOpen       Boolean  @default(true)
   maxSlots     Int      @default(3)
   currentSlots Int      @default(0)
+  revisionCount Int     @default(1)
   creatorId    String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

@@ -2,27 +2,27 @@ import SwiftUI
 
 /// Creator-specific tab layout.
 ///
-/// Tabs: Dashboard / My Posts / Marketplace / Commissions / Profile
+/// Tabs: Dashboard / Works / Commissions / Community / Profile
 struct CreatorTabView: View {
 
     var body: some View {
         TabView {
-            DashboardView()
+            CreatorDashboardView()
                 .tabItem {
                     Image(systemName: "chart.bar")
                     Text("ダッシュボード")
                 }
 
-            FeedView()
+            CreatorWorksView()
                 .tabItem {
                     Image(systemName: "photo.on.rectangle")
                     Text("作品")
                 }
 
-            MarketplaceView()
+            CreatorCommissionsView()
                 .tabItem {
-                    Image(systemName: "cart")
-                    Text("マーケット")
+                    Image(systemName: "list.clipboard")
+                    Text("コミッション")
                 }
 
             CommunityView()
@@ -31,7 +31,7 @@ struct CreatorTabView: View {
                     Text("コミュニティ")
                 }
 
-            ProfileView()
+            CreatorProfileView()
                 .tabItem {
                     Image(systemName: "person")
                     Text("プロフィール")
@@ -42,4 +42,5 @@ struct CreatorTabView: View {
 
 #Preview {
     CreatorTabView()
+        .environment(AuthManager())
 }
