@@ -160,3 +160,96 @@ struct PaginationInfo: Decodable {
     let total: Int
     let totalPages: Int
 }
+
+// MARK: - Fan Models
+
+/// Fan dashboard stats.
+struct FanDashboardData: Decodable {
+    let stats: FanStats
+    let recentFavorites: [FavoriteItem]
+}
+
+struct FanStats: Decodable {
+    let favoritesCount: Int
+    let followingCount: Int
+    let purchasesCount: Int
+    let ordersCount: Int
+    let unreadNotifications: Int
+}
+
+/// Favorite item — includes the post and its author.
+struct FavoriteItem: Codable, Identifiable, Sendable {
+    let id: String
+    let createdAt: String
+    let post: FavoritePost
+}
+
+struct FavoritePost: Codable, Sendable {
+    let id: String
+    let title: String
+    let imageUrls: [String]
+    let author: FavoriteAuthor
+}
+
+struct FavoriteAuthor: Codable, Sendable {
+    let id: String
+    let name: String
+    let displayName: String?
+    let avatarUrl: String?
+}
+
+/// Creator summary shown in the following list.
+struct FollowingCreator: Codable, Identifiable, Sendable {
+    let id: String
+    let name: String
+    let displayName: String?
+    let bio: String?
+    let avatarUrl: String?
+    let genres: [String]
+    let commissionOpen: Bool
+    let _count: FollowingCounts?
+}
+
+struct FollowingCounts: Codable, Sendable {
+    let posts: Int
+    let followers: Int
+}
+
+/// Fan profile for editing.
+struct FanProfile: Codable, Sendable {
+    let id: String
+    let name: String
+    let displayName: String?
+    let bio: String?
+    let avatarUrl: String?
+    let headerUrl: String?
+    let website: String?
+    let twitterHandle: String?
+    let _count: FanProfileCounts?
+}
+
+struct FanProfileCounts: Codable, Sendable {
+    let following: Int
+    let likes: Int
+}
+
+/// Fan profile update body.
+struct FanProfileUpdateBody: Encodable {
+    let displayName: String?
+    let bio: String?
+    let avatarUrl: String?
+    let headerUrl: String?
+    let website: String?
+    let twitterHandle: String?
+}
+
+/// Notification item.
+struct NotificationItem: Codable, Identifiable, Sendable {
+    let id: String
+    let type: String
+    let title: String
+    let message: String
+    let isRead: Bool
+    let linkUrl: String?
+    let createdAt: String
+}

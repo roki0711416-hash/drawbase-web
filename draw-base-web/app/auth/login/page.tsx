@@ -42,7 +42,18 @@ function LoginForm({
       setError(result.error);
       setLoading(false);
     } else {
-      router.push("/");
+      // ログイン成功 → セッションを取得してロールに応じてリダイレクト
+      const sessionRes = await fetch("/api/auth/session");
+      const sess = await sessionRes.json();
+      const userRole = sess?.user?.role;
+
+      if (!userRole) {
+        router.push("/auth/role-select");
+      } else if (userRole === "CREATOR" || userRole === "BOTH") {
+        router.push("/creator/dashboard");
+      } else {
+        router.push("/fan/dashboard");
+      }
       router.refresh();
     }
   };

@@ -1,37 +1,31 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 /**
  * Allowed CORS origins.
- * In production, restricts to known domains.
- * Always allows localhost for development.
  */
 function getAllowedOrigins(): string[] {
   const origins: string[] = [];
-
   const webUrl = process.env.NEXT_PUBLIC_WEB_URL;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   if (webUrl) origins.push(webUrl.replace(/\/$/, ""));
   if (appUrl && appUrl !== webUrl) origins.push(appUrl.replace(/\/$/, ""));
-
-  // Always allow localhost for development
   origins.push("http://localhost:3000");
   origins.push("http://localhost:3001");
-
   return origins;
 }
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  if (request.nextUrl.pathname.startsWith("/api/")) {
+  // ── API ルートの CORS 処理 ──
+  if (pathname.startsWith("/api/")) {
+    const response = NextResponse.next();
     const origin = request.headers.get("origin") || "";
     const allowedOrigins = getAllowedOrigins();
     const isAllowedOrigin = allowedOrigins.includes(origin);
 
-    // Set origin-specific header for known origins (browser requests),
-    // wildcard for non-browser clients (iOS app, curl, etc.)
     response.headers.set(
       "Access-Control-Allow-Origin",
       isAllowedOrigin ? origin : "*"
@@ -44,24 +38,57 @@ export function middleware(request: NextRequest) {
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization"
     );
-
-    // Allow credentials for known origins (cookie-based auth)
     if (isAllowedOrigin) {
       response.headers.set("Access-Control-Allow-Credentials", "true");
     }
-
-    // Handle preflight
     if (request.method === "OPTIONS") {
-      return new NextResponse(null, {
-        status: 200,
-        headers: response.headers,
-      });
+      return new NextResponse(null, { status: 200, headers: response.headers });
+    }
+    return response;
+  }
+
+  // ── ページ保護 ──
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+
+  // /creator/* — 認証必須 + CREATOR or BOTH
+  if (pathname.startsWith("/creator")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login?role=creator", request.url));
+    }
+    if (!token.role) {
+      return NextResponse.redirect(new URL("/auth/role-select", request.url));
+    }
+    if (token.role !== "CREATOR" && token.role !== "BOTH") {
+      return NextResponse.redirect(new URL("/fan/dashboard", request.url));
     }
   }
 
-  return response;
+  // /fan/* — 認証必須 + FAN or BOTH
+  if (pathname.startsWith("/fan")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login?role=fan", request.url));
+    }
+    if (!token.role) {
+      return NextResponse.redirect(new URL("/auth/role-select", request.url));
+    }
+    if (token.role !== "FAN" && token.role !== "BOTH") {
+      return NextResponse.redirect(new URL("/creator/dashboard", request.url));
+    }
+  }
+
+  // /admin/* — 認証必須 + isAdmin
+  if (pathname.startsWith("/admin")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login", request.url));
+    }
+    if (!token.isAdmin) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: ["/api/:path*", "/creator/:path*", "/fan/:path*", "/admin/:path*"],
 };
